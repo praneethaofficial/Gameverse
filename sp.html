@@ -1,0 +1,330 @@
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Gamepad2, X, RotateCcw, CheckCircle } from 'lucide-react';
+
+// Memory Game Component
+const MemoryGame = () => {
+  const [cards, setCards] = useState(Array(16).fill(null).map((_, i) => ({
+    value: Math.floor(i/2),
+    flipped: false,
+    matched: false
+  })).sort(() => Math.random() - 0.5));
+  const [selected, setSelected] = useState([]);
+  
+  const handleClick = (index) => {
+    if (selected.length === 2 || cards[index].flipped) return;
+    
+    const newCards = [...cards];
+    newCards[index].flipped = true;
+    setCards(newCards);
+    setSelected([...selected, index]);
+    
+    if (selected.length === 1) {
+      if (cards[selected[0]].value === cards[index].value) {
+        setTimeout(() => {
+          const matchedCards = [...cards];
+          matchedCards[selected[0]].matched = true;
+          matchedCards[index].matched = true;
+          setCards(matchedCards);
+          setSelected([]);
+        }, 500);
+      } else {
+        setTimeout(() => {
+          const newCards = [...cards];
+          newCards[selected[0]].flipped = false;
+          newCards[index].flipped = false;
+          setCards(newCards);
+          setSelected([]);
+        }, 1000);
+      }
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-4 gap-2">
+      {cards.map((card, i) => (
+        <Button
+          key={i}
+          onClick={=> handleClick(i)}
+          className={`h-16 ${card.flipped ? 'bg-blue-500' : 'bg-gray-300'}`}
+        >
+          {card.flipped ? card.value : ''}
+        </Button>
+      ))}
+    </div>
+  );
+};
+
+// Tic Tac Toe Component
+const TicTacToe = () => {
+  const [board, setBoard] = useState(Array(9).fill(null));
+  const [xIsNext, setXIsNext] = useState(true);
+  
+  const handleClick = (i) => {
+    if (board[i] || calculateWinner(board)) return;
+    const newBoard = [...board];
+    newBoard[i] = xIsNext ? 'X' : 'O';
+    setBoard(newBoard);
+    setXIsNext(!xIsNext);
+  };
+  
+  const calculateWinner = (squares) => {
+    const lines = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+    for (let line of lines) {
+      const [a, b, c] = line;
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
+    }
+    return null;
+  };
+
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      {board.map((square, i) => (
+        <Button
+          key={i}
+          onClick={() => handleClick(i)}
+          className="h-16"
+        >
+          {square}
+        </Button>
+      ))}
+    </div>
+  );
+};
+
+// Color Match Game Component
+const ColorMatch = () => {
+  const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+  const [targetColor, setTargetColor] = useState(colors[Math.floor(Math.random() * colors.length)]);
+  const [options, setOptions] = useState(shuffle([...colors]));
+  const [score, setScore] = useState(0);
+  
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
+  
+  const handleColorClick = (color) => {
+    if (color === targetColor) {
+      setScore(score + 1);
+      setTargetColor(colors[Math.floor(Math.random() * colors.length)]);
+      setOptions(shuffle([...colors]));
+    } else {
+      setScore(Math.max(0, score - 1));
+    }
+  };
+
+  return (
+    <div className="text-center">
+      <div className="mb-4">Match this color: 
+        <span className={`ml-2 px-4 py-1 rounded text-white`}
+              style={backgroundColor: targetColor}>
+          {targetColor}
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {options.map((color, i) => (
+          <Button
+            key={i}
+            onClick={ => handleColorClick(color)}
+            className="h-12"
+            style={{backgroundColor: color}}
+          />
+        ))}
+      </div>
+      <div className="mt-4">Score: {score}</div>
+    </div>
+  );
+};
+
+// Whack-a-Mole Game Component
+const WhackAMole = () => {
+  const [moles, setMoles] = useState(Array(9).fill(false));
+  const [score, setScore] = useState(0);
+  const [gameActive, setGameActive] = useState(false);
+  
+  const startGame = () => {
+    setGameActive(true);
+    setScore(0);
+    const gameInterval = setInterval(() => {
+      setMoles(moles => {
+        const newMoles = [...moles].fill(false);
+        newMoles[Math.floor(Math.random() * 9)] = true;
+        return newMoles;
+      });
+    }, 1000);
+    
+    setTimeout(() => {
+      clearInterval(gameInterval);
+      setGameActive(false);
+      setMoles(Array(9).fill(false));
+    }, 30000);
+  };
+  
+  const whackMole = (index) => {
+    if (moles[index] && gameActive) {
+      setScore(score + 1);
+      const newMoles = [...moles];
+      newMoles[index] = false;
+      setMoles(newMoles);
+    }
+  };
+
+  return (
+    <div className="text-center">
+      <Button onClick={startGame} disabled={gameActive} className="mb-4">
+        {gameActive ? 'Game in Progress' : 'Start Game'}
+      </Button>
+      <div className="grid grid-cols-3 gap-2">
+        {moles.map((isMole, i) => (
+          <Button
+            key={i}
+            onClick={() => whackMole(i)}
+            className={`h-16 ${isMole ? 'bg-brown-500' : 'bg-green-300'}`}
+          >
+            {isMole ? '🦔' : ''}
+          </Button>
+        ))}
+      </div>
+      <div className="mt-4">Score: {score}</div>
+    </div>
+  );
+};
+
+// Number Guess Game Component
+const NumberGuess = () => {
+  const [target] = useState(Math.floor(Math.random() * 100) + 1);
+  const [guess, setGuess] = useState('');
+  const [message, setMessage] = useState('');
+  const [attempts, setAttempts] = useState(0);
+  
+  const handleGuess = () => {
+    const num = parseInt(guess);
+    setAttempts(attempts + 1);
+    
+    if (num === target) {
+      setMessage(`Congratulations! You found it in ${attempts + 1} attempts!`);
+    } else if (num < target) {
+      setMessage('Too low! Try again.');
+    } else {
+      setMessage('Too high! Try again.');
+    }
+    setGuess('');
+  };
+
+  return (
+    <div className="text-center">
+      <input
+        type="number"
+        value={guess}
+        onChange={(e) => setGuess(e.target.value)}
+        className="border p-2 mr-2"
+        placeholder="Enter your guess (1-100)"
+      />
+      <Button onClick={handleGuess} className="mt-2">Guess</Button>
+      <div className="mt-4">{message}</div>
+      <div>Attempts: {attempts}</div>
+    </div>
+  );
+};
+
+// Word Scramble Game Component
+const WordScramble = () => {
+  const words = ['REACT', 'JAVASCRIPT', 'PROGRAMMING', 'DEVELOPER', 'COMPUTER'];
+  const [currentWord] = useState(words[Math.floor(Math.random() * words.length)]);
+  const [scrambled] = useState([...currentWord].sort(() => Math.random() - 0.5).join(''));
+  const [guess, setGuess] = useState('');
+  const [message, setMessage] = useState('');
+  
+  const handleGuess = () => {
+    if (guess.toUpperCase() === currentWord) {
+      setMessage('Correct! Well done!');
+    } else {
+      setMessage('Try again!');
+    }
+    setGuess('');
+  };
+
+  return (
+    <div className="text-center">
+      <div className="text-2xl mb-4">{scrambled}</div>
+      <input
+        type="text"
+        value={guess}
+        onChange={(e) => setGuess(e.target.value)}
+        className="border p-2 mr-2"
+        placeholder="Enter your guess"
+      />
+      <Button onClick={handleGuess} className="mt-2">Submit</Button>
+      <div className="mt-4">{message}</div>
+    </div>
+  );
+};
+
+// Main App Component
+const App = () => {
+  const [currentGame, setCurrentGame] = useState(null);
+  
+  const games = [
+    { name: 'Memory Match', component: MemoryGame },
+    { name: 'Tic Tac Toe', component: TicTacToe },
+    { name: 'Color Match', component: ColorMatch },
+    { name: 'Whack-a-Mole', component: WhackAMole },
+    { name: 'Number Guess', component: NumberGuess },
+    { name: 'Word Scramble', component: WordScramble }
+  ];
+
+  return (
+    <div className="max-w-4xl mx-auto p-4">
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Gamepad2 className="mr-2" />
+            Mini Games Arcade
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-4">
+            {games.map(game => (
+              <Button
+                key={game.name}
+                onClick={() => setCurrentGame(game)}
+                className={`p-4 ${currentGame?.name === game.name ? 'bg-blue-600' : ''}`}
+              >
+                {game.name}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {currentGame && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex justify-between items-center">
+              {currentGame.name}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCurrentGame(null)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <currentGame.component />
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+export default App;

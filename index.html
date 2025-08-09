@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVerse - Fun Mini Games</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --accent: #ec4899;
+            --background: #1f2937;
+            --card: #374151;
+            --text: #f3f4f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .title {
+            font-size: 3rem;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .game-card {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .game-description {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .game-container {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .back-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: var(--secondary);
+        }
+
+        /* Game-specific styles */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: var(--primary);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .memory-card.flipped {
+            transform: rotateY(180deg);
+            background: white;
+            color: var(--background);
+        }
+
+        .tictactoe-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tictactoe-cell {
+            aspect-ratio: 1;
+            background: var(--primary);
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .tictactoe-cell:hover {
+            background: var(--secondary);
+        }
+
+        .number-guess input {
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            margin-right: 1rem;
+            font-size: 1rem;
+        }
+
+        .number-guess button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .number-guess button:hover {
+            opacity: 0.9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="title">GameVerse</h1>
+            <p>Choose your adventure from our collection of mini-games!</p>
+        </header>
+
+        <div class="games-grid">
+            <div class="game-card" data-game="memory">
+                <div class="game-icon">🧠</div>
+                <h2 class="game-title">Memory Match</h2>
+                <p class="game-description">Test your memory by matching pairs of cards. Can you find them all?</p>
+            </div>
+
+            <div class="game-card" data-game="tictactoe">
+                <div class="game-icon">⭕</div>
+                <h2 class="game-title">Tic Tac Toe</h2>
+                <p class="game-description">Classic game of X's and O's. Challenge a friend!</p>
+            </div>
+
+            <div class="game-card" data-game="number">
+                <div class="game-icon">🎯</div>
+                <h2 class="game-title">Number Quest</h2>
+                <p class="game-description">Guess the secret number between 1 and 100.</p>
+            </div>
+        </div>
+
+        <!-- Memory Game Container -->
+        <div id="memory-game" class="game-container">
+            <button class="back-button">← Back to Games</button>
+            <h2>Memory Match</h2>
+            <div class="memory-grid"></div>
+        </div>
+
+        <!-- Tic Tac Toe Container -->
+        <div id="tictactoe-game" class="game-container">
+            <button class="back-button">← Back to Games</button>
+            <h2>Tic Tac Toe</h2>
+            <p id="tictactoe-status">Current player: X</p>
+            <div class="tictactoe-grid"></div>
+        </div>
+
+        <!-- Number Guess Container -->
+        <div id="number-game" class="game-container">
+            <button class="back-button">← Back to Games</button>
+            <h2>Number Quest</h2>
+            <div class="number-guess">
+                <p>Guess a number between 1 and 100:</p>
+                <input type="number" min="1" max="100">
+                <button>Guess!</button>
+                <p id="number-message"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game management
+        const gameCards = document.querySelectorAll('.game-card');
+        const gameContainers = document.querySelectorAll('.game-container');
+        const backButtons = document.querySelectorAll('.back-button');
+        const gamesGrid = document.querySelector('.games-grid');
+
+        gameCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const gameType = card.dataset.game;
+                gamesGrid.style.display = 'none';
+                document.getElementById(`${gameType}-game`).style.display = 'block';
+                initGame(gameType);
+            });
+        });
+
+        backButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                gameContainers.forEach(container => container.style.display = 'none');
+                gamesGrid.style.display = 'grid';
+            });
+        });
+
+        // Memory Game
+        function initMemoryGame() {
+            const grid = document.querySelector('.memory-grid');
+            const emojis = ['🎮', '🎲', '🎯', '🎨', '🎭', '🎪', '🎫', '🎪'];
+            const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+            
+            grid.innerHTML = '';
+            let flipped = [];
+            let matched = [];
+
+            cards.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.index = index;
+                card.dataset.emoji = emoji;
+                card.textContent = '?';
+
+                card.addEventListener('click', () => {
+                    if (flipped.length === 2 || flipped.includes(index) || matched.includes(index)) return;
+                    
+                    card.textContent = emoji;
+                    card.classList.add('flipped');
+                    flipped.push(index);
+
+                    if (flipped.length === 2) {
+                        if (cards[flipped[0]] === cards[flipped[1]]) {
+                            matched.push(...flipped);
+                            flipped = [];
+                        } else {
+                            setTimeout(() => {
+                                document.querySelectorAll(`.memory-card[data-index="${flipped[0]}"], .memory-card[data-index="${flipped[1]}"]`)
+                                    .forEach(card => {
+                                        card.textContent = '?';
+                                        card.classList.remove('flipped');
+                                    });
+                                flipped = [];
+                            }, 1000);
+                        }
+                    }
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Tic Tac Toe Game
+        function initTicTacToe() {
+            const grid = document.querySelector('.tictactoe-grid');
+            const status = document.getElementById('tictactoe-status');
+            let currentPlayer = 'X';
+            let board = Array(9).fill('');
+            
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('button');
+                cell.className = 'tictactoe-cell';
+                cell.addEventListener('click', () => {
+                    if (board[i] || checkWinner(board)) return;
+                    
+                    board[i] = currentPlayer;
+                    cell.textContent = currentPlayer;
+                    
+                    const winner = checkWinner(board);
+                    if (winner) {
+                        status.textContent = `Player ${winner} wins!`;
+                    } else if (board.every(cell => cell)) {
+                        status.textContent = "It's a draw!";
+                    } else {
+                        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                        status.textContent = `Current player: ${currentPlayer}`;
+                    }
+                });
+                grid.appendChild(cell);
+            }
+        }
+
+        function checkWinner(board) {
+            const lines = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            
+            for (const [a, b, c] of lines) {
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            return null;
+        }
+
+        // Number Guessing Game
+        function initNumberGame() {
+            const input = document.querySelector('#number-game input');
+            const button = document.querySelector('#number-game button');
+            const message = document.getElementById('number-message');
+            const target = Math.floor(Math.random() * 100) + 1;
+
+            button.addEventListener('click', () => {
+                const guess = parseInt(input.value);
+                if (guess === target) {
+                    message.textContent = 'Congratulations! You got it!';
+                    message.style.color = '#10B981';
+                } else if (guess < target) {
+                    message.textContent = 'Too low! Try again.';
+                    message.style.color = '#EF4444';
+                } else {
+                    message.textContent = 'Too high! Try again.';
+                    message.style.color = '#EF4444';
+                }
+            });
+        }
+
+        function initGame(gameType) {
+            switch(gameType) {
+                case 'memory':
+                    initMemoryGame();
+                    break;
+                case 'tictactoe':
+                    initTicTacToe();
+                    break;
+                case 'number':
+                    initNumberGame();
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
